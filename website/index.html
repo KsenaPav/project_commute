@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Bicycle Commute</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #sketch-container {
+            width: 90%;
+            height: 500px;
+            border: 1px solid #ccc;
+            margin: 20px 0;
+            position: relative;
+        }
+        #text-block {
+            width: 80%;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .zoom-button {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #000;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 14px;
+            width: 40px;
+            height: 40px;
+        }
+        #zoom-in { top: 10px; right: 10px; }
+        #zoom-out { top: 50px; right: 10px; }
+    </style>
+</head>
+<body>
+
+<h1>Student Bicycle Commute Time to the Moulon Campus</h1>
+<p>Are you a Moulon Campus student who enjoys cycling and you're looking for accommodation? Then we can help you decide!</p>
+
+<div id="sketch-container">
+    <button id="zoom-in" class="zoom-button">+</button>
+    <button id="zoom-out" class="zoom-button">-</button>
+</div>
+
+<div id="text-block">
+    <h2>About This Visualization</h2>
+    <p>
+        This is a visualization of an SVG map using the D3.js library. You can zoom in and out using the buttons or the mouse wheel, and drag the map to explore different areas.
+    </p>
+    <p>
+        The map is responsive and adjusts to the size of the container. Below the visualization, you can add additional text or information about the project.
+    </p>
+</div>
+
+<script src="sketch1.js"></script>
+
+</body>
+</html>
