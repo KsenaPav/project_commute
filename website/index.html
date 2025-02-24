@@ -51,6 +51,17 @@
 			font-family: Arial, sans-serif;
 			max-width: 250px;
 		}
+        #info-container {
+        width: 100%;
+        padding: 10px;
+        border-top: 2px solid #ddd;
+        }
+        .info-box {
+            max-width: 600px;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
     </style>
 </head>
 <body>
@@ -79,6 +90,9 @@
         The map is responsive and adjusts to the size of the container. Below the visualization, you can add additional text or information about the project.
     </p>
 </div>
+
+<div id="sketch-container"></div>
+<div id="info-container"></div> <!-- New container for building info -->
 
 <script src="sketch_d3.js"></script>
 

@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const importedNode = document.importNode(data.documentElement, true);
         svg.node().appendChild(importedNode);
         fitToContainer();
-        enableBuildingClick(); // Enable click detection after loading the SVG
+        enableBuildingClick(); 
     }).catch(error => console.error("Error loading SVG:", error));
 
     function zoomed(event) {
@@ -36,47 +36,59 @@ document.addEventListener("DOMContentLoaded", function () {
         zoom.scaleExtent([scale * 0.5, 8]);
     }
 
-	function enableBuildingClick() {
-		// Load the student housing JSON file
-		d3.json("../cleaned_data/bures_student_housing.json").then(housingData => {
-            svg.selectAll("*") // Select all elements in the SVG
+function enableBuildingClick() {
+    d3.json("../cleaned_data/bures_student_housing.json")
+        .then(housingData => {
+            console.log("Housing Data Loaded:", housingData);
+
+            // Select paths that represent student housing (blue fill)
+            svg.selectAll("path")
                 .filter(function () {
-                    const element = d3.select(this);
-
-                    // Try to get fill color
-                    let fillColor = element.attr("fill") || element.style("fill"); // Try both attr & style
-                    if (!fillColor) {
-                        // If fill is still null, get computed style
-                        fillColor = window.getComputedStyle(this).getPropertyValue("fill");
-                    }
-
-                    console.log("Detected Fill Color:", fillColor);
-
-                    return fillColor === "blue" || fillColor === "#0000ff"; // Match blue buildings
+                    let fillColor = d3.select(this).style("fill") || this.getAttribute("fill");
+                    return fillColor === "rgb(0, 0, 255)" || fillColor.toLowerCase() === "#0000ff"; // Convert to lowercase for consistency
                 })
                 .style("cursor", "pointer")
+                .each(function (d, i) {
+                    // Assign data to paths (assuming order is consistent)
+                    if (housingData.features[i]) {
+                        d3.select(this).datum(housingData.features[i].properties);
+                    }
+                })
                 .on("click", function (event, d) {
-                    const clickedPolygon = d3.select(this);
-                    showInfo(event, clickedPolygon, housingData);
+                    if (d) {
+                        showInfo(event, d);
+                    } else {
+                        console.warn("No data found for this building.");
+                    }
                 });
+
         })
         .catch(error => console.error("Error loading housing data:", error));
-	}
+}
+    
+
 	
 
-    function showInfo(event, clickedPolygon, housingData) {
-        const polygonCoords = clickedPolygon.attr("d"); // Get polygon path data
-        if (!polygonCoords) return;
+function showInfo(event, buildingData) {
+    const infoContainer = d3.select("#info-container");
+    
+    // Clear previous info
+    infoContainer.html("");
 
-        // Match the clicked polygon to the JSON geometry
-        const matchingEntry = housingData.find(entry =>
-            entry.geometry && polygonCoords.includes(entry.geometry) // Simple match check
-        );
-
-        if (matchingEntry) {
-            displayPopup(event.pageX, event.pageY, matchingEntry.info);
-        }
-    }
+    // Append new information
+    infoContainer.append("div")
+        .attr("class", "info-box")
+        .style("padding", "10px")
+        .style("border", "1px solid black")
+        .style("background", "white")
+        .style("margin-top", "10px")
+        .html(`
+            <h3>Student Housing Information</h3>
+            <p><strong>Name:</strong> ${buildingData.name || "Unknown"}</p>
+            <p><strong>Address:</strong> ${buildingData.address || "N/A"}</p>
+            <p><strong>Details:</strong> ${buildingData.info || "No additional details available."}</p>
+        `);
+}
 
     function displayPopup(x, y, info) {
         let popup = d3.select("#popup");
