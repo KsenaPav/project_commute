@@ -36,69 +36,45 @@
 //        zoom.scaleExtent([scale * 0.5, 8]);
 //    }
 
-//function enableBuildingClick() {
-//    d3.json("../cleaned_data/bures_student_housing.json")
-//        .then(housingData => {
-//            console.log("Housing Data Loaded:", housingData);
+//    function enableBuildingClick() {
+//        d3.json("../cleaned_data/bures_student_housing.json")
+//            .then(housingData => {
+//                console.log("Housing Data Loaded:", housingData);
 
-//            // Select paths that represent student housing (blue fill)
-//            svg.selectAll("path")
-//                .filter(function () {
-//                    let fillColor = d3.select(this).style("fill") || this.getAttribute("fill");
-//                    return fillColor === "rgb(0, 0, 255)" || fillColor.toLowerCase() === "#0000ff"; // Convert to lowercase for consistency
-//                })
-//                .style("cursor", "pointer")
-//                .each(function (d, i) {
-//                    // Assign data to paths (assuming order is consistent)
-//                    if (housingData.features[i]) {
-//                        d3.select(this).datum(housingData.features[i].properties);
-//                    }
-//                })
-//                .on("click", function (event, d) {
-//                    if (d) {
-//                        showInfo(event, d);
-//                    } else {
-//                        console.warn("No data found for this building.");
-//                    }
-//                });
+//                // Select paths that represent student housing (blue fill)
+//                svg.selectAll("path")
+//                    .filter(function () {
+//                        let fillColor = d3.select(this).style("fill") || this.getAttribute("fill");
+//                        return fillColor === "rgb(0, 0, 255)" || fillColor.toLowerCase() === "#0000ff"; // Convert to lowercase for consistency
+//                    })
+//                    .style("cursor", "pointer")
+//                    .each(function (d, i) {
+//                        // Assign data to paths (assuming order is consistent)
+//                        if (housingData.features[i]) {
+//                            d3.select(this).datum(housingData.features[i].properties);
+//                        }
+//                    })
+//                    .on("click", function (event, d) {
+//                        if (d) {
+//                            showInfo(event, d);
+//                        } else {
+//                            console.warn("No data found for this building.");
+//                        }
+//                    });
 
-//        })
-//        .catch(error => console.error("Error loading housing data:", error));
-//}
-    
+//            })
+//            .catch(error => console.error("Error loading housing data:", error));
+//    }
 
-	
+//    function showInfo(event, buildingData) {
+//        // Select the info container
+//        const infoContainer = d3.select("#info-container");
 
-//function showInfo(event, buildingData) {
-//    // Select the info container
-//    const infoContainer = d3.select("#info-container");
+//        // Update the text with building details
+//        d3.select("#info-text").html(`<strong>Location:</strong> ${buildingData.town}<br><strong>Rent:</strong> ${buildingData.info}`);
 
-//    // Update the text with building details
-//    d3.select("#info-text").html(`<strong>Location:</strong> ${buildingData.town}<br><strong>Rent:</strong> ${buildingData.info}`);
-
-//    // Make the container visible
-//    infoContainer.style("display", "block");
-//}
-
-
-//    function displayPopup(x, y, info) {
-//        let popup = d3.select("#popup");
-//        if (popup.empty()) {
-//            popup = d3.select("body").append("div")
-//                .attr("id", "popup")
-//                .style("position", "absolute")
-//                .style("background", "white")
-//                .style("border", "1px solid black")
-//                .style("padding", "10px")
-//                .style("display", "none");
-//        }
-
-//        popup.style("left", `${x + 10}px`)
-//            .style("top", `${y + 10}px`)
-//            .html(`<strong>Student Housing Info:</strong><br>${info}`)
-//            .style("display", "block");
-
-//        setTimeout(() => popup.style("display", "none"), 5000); // Auto-hide after 5 seconds
+//        // Make the container visible
+//        infoContainer.style("display", "block");
 //    }
 
 //    document.getElementById("zoom-in").addEventListener("click", function () {
@@ -116,7 +92,6 @@
 //        fitToContainer();
 //    });
 //});
-
 
 document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("sketch-container");
@@ -157,41 +132,54 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function enableBuildingClick() {
-        d3.json("../cleaned_data/bures_student_housing.json")
-            .then(housingData => {
-                console.log("Housing Data Loaded:", housingData);
+        // Dynamically load different JSON files for housing data
+        const housingFiles = [
+            "../cleaned_data/bures_student_housing.json",
+            "../cleaned_data/gif_student_housing.json",
+            "../cleaned_data/orsay_student_housing.json",
+            "../cleaned_data/massy_student_housing.json",
+            "../cleaned_data/palaiseau_student_housing.json"
+        ];
 
-                // Select paths that represent student housing (blue fill)
-                svg.selectAll("path")
-                    .filter(function () {
-                        let fillColor = d3.select(this).style("fill") || this.getAttribute("fill");
-                        return fillColor === "rgb(0, 0, 255)" || fillColor.toLowerCase() === "#0000ff"; // Convert to lowercase for consistency
-                    })
-                    .style("cursor", "pointer")
-                    .each(function (d, i) {
-                        // Assign data to paths (assuming order is consistent)
-                        if (housingData.features[i]) {
-                            d3.select(this).datum(housingData.features[i].properties);
-                        }
-                    })
-                    .on("click", function (event, d) {
-                        if (d) {
-                            showInfo(event, d);
-                        } else {
-                            console.warn("No data found for this building.");
-                        }
-                    });
+        housingFiles.forEach(file => {
+            d3.json(file)
+                .then(housingData => {
+                    console.log(`Housing Data Loaded from: ${file}`, housingData);
 
-            })
-            .catch(error => console.error("Error loading housing data:", error));
+                    // Select paths that represent student housing (blue fill)
+                    svg.selectAll("path")
+                        .filter(function () {
+                            let fillColor = d3.select(this).style("fill") || this.getAttribute("fill");
+                            return fillColor === "rgb(0, 0, 255)" || fillColor.toLowerCase() === "#0000ff"; // Convert to lowercase for consistency
+                        })
+                        .style("cursor", "pointer")
+                        .each(function (d, i) {
+                            // Assign data to paths (assuming order is consistent)
+                            if (housingData.features[i]) {
+                                d3.select(this).datum(housingData.features[i].properties);
+                            }
+                        })
+                        .on("click", function (event, d) {
+                            if (d) {
+                                showInfo(event, d);
+                            } else {
+                                console.warn("No data found for this building.");
+                            }
+                        });
+                })
+                .catch(error => console.error(`Error loading housing data from ${file}:`, error));
+        });
     }
 
     function showInfo(event, buildingData) {
         // Select the info container
         const infoContainer = d3.select("#info-container");
 
+        // Get the address or set it to "Unknown" if missing
+        const address = buildingData.address || "Unknown";
+
         // Update the text with building details
-        d3.select("#info-text").html(`<strong>Location:</strong> ${buildingData.town}<br><strong>Rent:</strong> ${buildingData.info}`);
+        d3.select("#info-text").html(`<strong>Location:</strong> ${buildingData.town}<br><strong>Rent:</strong> ${buildingData.info}<br><strong>Address:</strong> ${address}`);
 
         // Make the container visible
         infoContainer.style("display", "block");
