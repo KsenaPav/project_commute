@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let zoom = d3.zoom().scaleExtent([0.2, 8]).on("zoom", zoomed);
     let svgContainer = d3.select("svg").call(zoom);
 
-    d3.xml("data/map_v2.svg").then(data => {
+    d3.xml("data/map.svg").then(data => {
         const importedNode = document.importNode(data.documentElement, true);
         svg.node().appendChild(importedNode);
         fitToContainer();
