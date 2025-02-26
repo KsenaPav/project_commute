@@ -169,20 +169,15 @@ document.addEventListener("DOMContentLoaded", function () {
     let allHousingData = []; // Declare globally for accessibility
 
     function enableBuildingClick() {
-        const housingFiles = [
-            "../cleaned_data/bures_student_housing.json",
-            "../cleaned_data/gif_student_housing.json",
-            "../cleaned_data/orsay_student_housing.json",
-            "../cleaned_data/massy_student_housing.json",
-            "../cleaned_data/palaiseau_student_housing.json"
-        ];
+        const housingFile = "../cleaned_data/student_housing.json";
     
-        // Load all JSON files and merge into one array
-        Promise.all(housingFiles.map(file => d3.json(file)))
-            .then(dataArray => {
-                allHousingData = dataArray.flatMap(data => data.features); // Store globally
-                console.log("✅ All housing data loaded:", allHousingData);
+        // Load the JSON file
+        d3.json(housingFile)
+            .then(data => {
+                allHousingData = data.features; // Store globally
+                console.log("✅ Student housing data loaded:", allHousingData);
     
+                // Select all paths in the SVG with blue fill (representing student housing)
                 svg.selectAll("path")
                     .filter(function () {
                         let fillColor = d3.select(this).style("fill") || this.getAttribute("fill");
@@ -195,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
                         console.log("📌 Clicked on path, BBox:", pathBBox);
     
-                        // Find the closest housing data point
+                        // Find the closest housing data point using BBox
                         const closestBuilding = findClosestBuilding(pathBBox);
     
                         if (closestBuilding) {
@@ -209,43 +204,55 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     });
             })
-            .catch(error => console.error("❌ Error loading housing data:", error));
+            .catch(error => console.error("❌ Error loading student housing data:", error));
     }
     
-    function findClosestBuilding(pathBBox) {
-        console.log("🔎 Finding closest building for BBox:", pathBBox);
     
+    function findClosestBuilding(pathBBox) {
+        let closest = null;
         let minDistance = Infinity;
-        let closestBuilding = null;
     
         allHousingData.forEach(building => {
-            const coords = building.geometry.coordinates;
-            if (!coords) {
-                console.warn("⚠️ Skipping building with missing coordinates:", building);
-                return;
-            }
+            if (building.geometry.type === "Polygon") {
+                // Calculate centroid of the polygon
+                let coordinates = building.geometry.coordinates[0]; // Outer ring of the polygon
+                let centroid = getPolygonCentroid(coordinates);
     
-            // Convert lat/lon (geo) to approximate SVG coordinate system
-            const [lon, lat] = coords;
-            const x = lon * 100; // Approximate conversion, may need adjustment
-            const y = lat * -100; // Invert Y to match SVG coords
+                // Convert to SVG space (adjust as needed)
+                let [x, y] = convertGeoToSvg(centroid);
     
-            // Compute simple distance (Euclidean)
-            const dx = pathBBox.x - x;
-            const dy = pathBBox.y - y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+                // Calculate distance from path's center
+                let pathCenterX = pathBBox.x + pathBBox.width / 2;
+                let pathCenterY = pathBBox.y + pathBBox.height / 2;
+                let distance = Math.sqrt(Math.pow(x - pathCenterX, 2) + Math.pow(y - pathCenterY, 2));
     
-            console.log(`📏 Distance from path to building ${building.properties.town}:`, distance);
-    
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestBuilding = building;
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closest = building;
+                }
             }
         });
     
-        console.log("✅ Closest building found:", closestBuilding ? closestBuilding.properties : "None found");
-        return closestBuilding;
+        return closest;
     }
+
+    function getPolygonCentroid(coordinates) {
+        let xSum = 0, ySum = 0, count = coordinates.length;
+        
+        coordinates.forEach(coord => {
+            xSum += coord[0]; // Longitude
+            ySum += coord[1]; // Latitude
+        });
+    
+        return [xSum / count, ySum / count]; // Return centroid
+    }
+
+    function convertGeoToSvg(geoCoords) {
+        let projection = d3.geoMercator().scale(50000).center([2.2, 48.7]); // Adjust scaling
+        return projection(geoCoords);
+    }
+    
+    
     
     function showInfo(event, buildingData) {
         const infoContainer = d3.select("#info-container");
